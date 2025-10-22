@@ -1,9 +1,10 @@
 import { ChangeEvent, useState } from "react";
 import { Car, CarResponse, CarEntity } from "../types";
-import { Dialog, DialogActions, DialogTitle, Button } from "@mui/material";
+import { Dialog, DialogActions, DialogTitle, Button, IconButton, Tooltip } from "@mui/material";
 import CarDialogContent from "./CarDialogContent";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateCar } from "../api/carapi";
+import ModeEditOutlineRoundedIcon from "@mui/icons-material/ModeEditOutlineRounded";
 
 type FormProps = {
   cardata: CarResponse
@@ -66,17 +67,22 @@ function EditCar({cardata}: FormProps) {
     setCar({...car, [event.target.name]: event.target.value});
   }
 
-  return(
+  return (
     <>
-      <Button onClick={handleClickOpen} variant="outlined">
-        Edit
-      </Button>
+      <Tooltip title="Edit car">
+        <IconButton onClick={handleClickOpen} aria-label="delete" size="small">
+          <ModeEditOutlineRoundedIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
       <Dialog open={open} onClose={handleClickClose}>
         <DialogTitle>Edit Car</DialogTitle>
-        <CarDialogContent car={car} handleChange={handleChange}></CarDialogContent>
+        <CarDialogContent
+          car={car}
+          handleChange={handleChange}
+        ></CarDialogContent>
         <DialogActions>
-          <button onClick={handleClickClose}>Cancel | 취소</button>
-          <button onClick={handleSave}>Save | 저장</button>
+          <Button onClick={handleClickClose}>Cancel | 취소</Button>
+          <Button onClick={handleSave}>Save | 저장</Button>
         </DialogActions>
       </Dialog>
     </>
