@@ -1,6 +1,5 @@
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { useState } from "react";
-import { Item } from "./App copy";
 
 type AddItemProps = {
   addItem: (item: Item) => void;
