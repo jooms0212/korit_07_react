@@ -1,11 +1,18 @@
+// 사용자 로그인 자격 증명 타입
+export type AccountCredentials = {
+  username: string;
+  password: string;
+}
 
 export type ShoppingItem = {
   id: number;
-  name: string;
-  amount: string; // 백엔드와 일치하는 String 타입
-};
+  product: string;
+  amount: string;
+  purchased: boolean;
+}
 
-export type NewShoppingItem = {
-  name: string;
-  amount: string; // 백엔드와 일치하는 String 타입
-};
+export type ShoppingItemEntry = {
+  product: string;
+  amount: string;
+  purchased: boolean;
+}

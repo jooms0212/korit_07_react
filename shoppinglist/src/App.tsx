@@ -1,38 +1,69 @@
-import { Container } from "@mui/material";
-import { AppBar, Toolbar, Typography } from "@mui/material";
-import { List, ListItem, ListItemText } from "@mui/material";
-import "./App.css";
-import { useState } from "react";
-import AddItem from "./addItem";
+import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AppBar, Toolbar, Typography, Button, Container, Box, CssBaseline } from "@mui/material";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Login from "./components/Login";
+import ShoppingItemList from "./components/ShoppingItemList";
 
-export type Item = {
-  product: string;
-  amount: string;
-};
+const queryClient = new QueryClient();
 
 function App() {
-  const [items, setItems] = useState<Item[]>([]);
-  const addItem = (item: Item) => {
-    setItems([item, ...items]);
-  };
+  const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = sessionStorage.getItem('jwt');
+      setIsAuthenticated(!!token);
+    };
+    checkAuth();  // 위에서 정의한거 바로 호출함.
+    window.addEventListener('storage', checkAuth); // 다른 탭에서 변경을 감지하기 위해 추가함.
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+    }
+  }, []);
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+  }
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('jwt');
+    setIsAuthenticated(false);
+    queryClient.clear();
+  }
 
   return (
-    <Container>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6">쇼핑 리스트 Shopping List</Typography>
-        </Toolbar>
-      </AppBar>
-      <AddItem addItem={addItem} />
-      <List>
-        {items.map((item, index) => (
-          <ListItem key={index} divider>
-            <ListItemText primary={item.product} secondary={item.amount} />
-          </ListItem>
-        ))}
-      </List>
-    </Container>
-  );
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <CssBaseline />
+        <Container maxWidth="lg">
+          <AppBar position="static" sx={{ mb: 4 }}>
+            <Toolbar>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Shopping List | 쇼핑 리스트 👜
+              </Typography>
+              {
+                isAuthenticated && (
+                  <Button color="inherit" onClick={handleLogout}>
+                    Logout
+                    </Button>
+                )}
+            </Toolbar>
+          </AppBar>
+
+          <Box>
+            <Routes>
+              <Route path="/" element={isAuthenticated ? <ShoppingItemList /> : <Navigate to = "/login" replace />}/>
+              <Route path="/login" 
+                element={isAuthenticated ? <Navigate to= "/" replace /> : <Login loginSuccess={handleLoginSuccess} />}/>
+              <Route path="*" 
+                element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />}/>
+            </Routes>
+          </Box>
+        </Container>
+      </BrowserRouter>
+    </QueryClientProvider>
+  )
 }
 
 export default App;
